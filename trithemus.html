@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trithemius cypher</title>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/assert/assert.js"></script>
+    <script src="js/helper.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h1>Trithemius cipher</h1>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Action</label>
+
+                    <div class="col-md-10">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="action" value="encode" checked>
+                                Encode
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="action" value="decode">
+                                Decode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="keyword" class="col-md-2 control-label">Keyword</label>
+
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="keyword" name="keyword"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="input" class="col-md-2 control-label">Input</label>
+
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="input" name="input"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="output" class="col-md-2 control-label">Output</label>
+
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="output" name="input"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="button" class="btn btn-primary">Run</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var alphabet = 'абвгдежзийклмнопрстуфхцчшщъыьэюя';
+    var length = alphabet.length;
+    var rows = 4;
+    var cols = 8;
+
+    assert.strictEqual(length, rows * cols);
+
+    var table = new Array(rows);
+    for (var i = 0; i < rows; i++) {
+        table[i] = new Array(cols);
+    }
+
+    $(document).ready(function () {
+        $('button').click(function () {
+            var action = $('input[name="action"]:checked').val();
+            var keyword = $('#keyword').val().toLowerCase();
+            var input = $('#input').val();
+            var output = '';
+
+            var usedChars = [];
+            for (var i = 0; i < keyword.length; i++) {
+                if (usedChars.indexOf(keyword[i]) === -1) {
+                    usedChars.push(keyword[i]);
+                    table[Math.floor(i / cols)][i % cols] = keyword[i];
+                }
+            }
+
+            var idx = keyword.length;
+            for (var i = 0; i < length; i++) {
+                if (usedChars.indexOf(alphabet[i]) === -1) {
+                    usedChars.push(alphabet[i]);
+                    console.log(Math.floor(idx / cols), idx % cols, i);
+                    table[Math.floor(idx / cols)][idx % cols] = alphabet[i];
+                    idx++;
+                }
+            }
+
+            console.table(table);
+
+            for (var i = 0; i < input.length; i++) {
+                if (alphabet.indexOf(input[i].toLowerCase()) != -1) {
+                    var row, col;
+
+                    outer:
+                    for (var r = 0; r < rows; r++) {
+                        for (var c = 0; c < cols; c++) {
+                            if (table[r][c] == input[i].toLowerCase()) {
+                                row = r;
+                                col = c;
+                                break outer;
+                            }
+                        }
+                    }
+                    if (action == 'encode') {
+                        row = (row + 1) % rows;
+                    } else {
+                        row = (row - 1 + rows) % rows;
+                    }
+                    var char = table[row][col];
+                    if (input[i] == input[i].toLowerCase()) {
+                        output += char;
+                    } else {
+                        output += char.toUpperCase();
+                    }
+                } else {
+                    output += input[i];
+                }
+            }
+            $('#output').val(output);
+        });
+    });
+</script>
+</body>
+</html>

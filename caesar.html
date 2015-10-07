@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Caesar cipher</title>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="js/helper.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h1>Caesar cipher</h1>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Action</label>
+
+                    <div class="col-md-10">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="action" value="encode" checked>
+                                Encode
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="action" value="decode">
+                                Decode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="input" class="col-md-2 control-label">Input</label>
+
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="input" name="input"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="output" class="col-md-2 control-label">Output</label>
+
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="output" name="input"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="button" class="btn btn-primary">Run</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    var length = alphabet.length;
+    var offset = 3;
+
+    $(document).ready(function () {
+        $('button').click(function () {
+            var action = $('input[name="action"]:checked').val();
+            var input = $('#input').val();
+            var output = '';
+            for (var i = 0; i < input.length; i++) {
+                if (alphabet.indexOf(input[i].toLowerCase()) != -1) {
+                    var newIndex;
+                    if (action == 'encode') {
+                        newIndex = (alphabet.indexOf(input[i].toLowerCase()) + offset) % length;
+                    } else {
+                        newIndex = (alphabet.indexOf(input[i].toLowerCase()) - offset + length) % length;
+                    }
+                    var char = alphabet[newIndex];
+                    if (input[i] == input[i].toLowerCase()) {
+                        output += char;
+                    } else {
+                        output += char.toUpperCase();
+                    }
+                } else {
+                    output += input[i];
+                }
+            }
+            $('#output').val(output);
+        });
+    });
+</script>
+</body>
+</html>

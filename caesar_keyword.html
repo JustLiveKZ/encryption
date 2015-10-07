@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Caesar cipher with keyword</title>
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="js/helper.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h1>Caesar cipher with keyword</h1>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Action</label>
+
+                    <div class="col-md-10">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="action" value="encode" checked>
+                                Encode
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="action" value="decode">
+                                Decode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="keyword" class="col-md-2 control-label">Keyword</label>
+
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="keyword" name="keyword"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="offset" class="col-md-2 control-label">Offset</label>
+
+                    <div class="col-md-10">
+                        <input type="text" class="form-control" id="offset" name="offset"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="input" class="col-md-2 control-label">Input</label>
+
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="input" name="input"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="output" class="col-md-2 control-label">Output</label>
+
+                    <div class="col-md-10">
+                        <textarea class="form-control" id="output" name="input"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <button type="button" class="btn btn-primary">Run</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    var length = alphabet.length;
+    var offset;
+    var keyword;
+    var i;
+
+    $(document).ready(function () {
+        $('button').click(function () {
+            var action = $('input[name="action"]:checked').val();
+            var keyword = $("#keyword").val();
+            var offset = parseInt($("#offset").val());
+            var input = $('#input').val();
+            var output = '';
+
+            var newAlphabet = alphabet;
+            for (i = 0; i < keyword.length; i++) {
+                var index = newAlphabet.indexOf(keyword[i].toLowerCase());
+                newAlphabet = newAlphabet.slice(0, index) + newAlphabet.slice(index + 1);
+            }
+
+            if (length >= offset + keyword.length) {
+                newAlphabet = newAlphabet.slice(-offset) + keyword + newAlphabet.slice(0, -offset);
+            } else {
+                var tailLength = length - offset;
+                newAlphabet = keyword.slice(tailLength) + newAlphabet + keyword.slice(0, tailLength);
+            }
+
+            for (i = 0; i < input.length; i++) {
+                if (alphabet.indexOf(input[i].toLowerCase()) != -1) {
+                    var char;
+                    if (action == 'encode') {
+                        char = newAlphabet[alphabet.indexOf(input[i].toLowerCase())];
+                    } else {
+                        char = alphabet[newAlphabet.indexOf(input[i].toLowerCase())];
+                    }
+                    if (input[i] == input[i].toLowerCase()) {
+                        output += char;
+                    } else {
+                        output += char.toUpperCase();
+                    }
+                } else {
+                    output += input[i];
+                }
+            }
+            $('#output').val(output);
+        });
+    });
+</script>
+</body>
+</html>
