@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trithemius cypher</title>
+    <title>Playfair cypher</title>
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" type="text/css" rel="stylesheet">
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/assert/assert.js"></script>
@@ -12,7 +12,8 @@
 <div class="container">
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
-            <h1>Trithemius cipher</h1>
+            <h1>Playfair cipher</h1>
+
             <form class="form-horizontal">
                 <div class="form-group">
                     <label class="col-md-2 control-label">Action</label>
@@ -81,6 +82,7 @@
             var keyword = $('#keyword').val().toLowerCase();
             var input = $('#input').val();
             var output = '';
+            var bigrams = [];
 
             var usedChars = [];
             for (var i = 0; i < keyword.length; i++) {
@@ -101,26 +103,76 @@
 
             console.table(table);
 
-            for (var i = 0; i < input.length; i++) {
-                if (alphabet.indexOf(input[i].toLowerCase()) != -1) {
-                    var row, col;
+            idx = -1;
+            var inputWithOnlyAlpha = input.replace(/^[а-я]/i, '');
+            for (var i = 0; i < inputWithOnlyAlpha.length; i++) {
+                if (i % 2 == 0) {
+                    bigrams.push([]);
+                    idx++;
+                }
+                bigrams[idx].push(inputWithOnlyAlpha[i].toLowerCase());
+                if (bigrams[idx].length == 2) {
+                    if (bigrams[idx][0] == bigrams[idx][1]) {
+                        alert('Биграмма с одинаковыми буквами: '.concat(bigrams[idx].toString()));
+                        return false;
+                    }
+                }
+            }
 
-                    outer:
-                    for (var r = 0; r < rows; r++) {
-                        for (var c = 0; c < cols; c++) {
-                            if (table[r][c] == input[i].toLowerCase()) {
-                                row = r;
-                                col = c;
-                                break outer;
-                            }
+            if (bigrams[bigrams.length - 1].length == 1) {
+                alert('Нечетное количество букв');
+                return false;
+            }
+
+            for (var i = 0; i < bigrams.length; i++) {
+                var row1, col1, row2, col2;
+                for (var r = 0; r < rows; r++) {
+                    for (var c = 0; c < cols; c++) {
+                        if (table[r][c] == bigrams[i][0]) {
+                            row1 = r;
+                            col1 = c;
+                        }
+                        if (table[r][c] == bigrams[i][1]) {
+                            row2 = r;
+                            col2 = c;
                         }
                     }
-                    if (action == 'encode') {
-                        row = (row + 1) % rows;
+                }
+                if (action == 'encode') {
+                    if (row1 != row2 && col1 != col2) {
+                        bigrams[i][0] = table[row1][col2];
+                        bigrams[i][1] = table[row2][col1];
+                    } else if (row1 == row2) {
+                        bigrams[i][0] = table[row1][(col1 + 1) % cols];
+                        bigrams[i][1] = table[row2][(col2 + 1) % cols];
                     } else {
-                        row = (row - 1 + rows) % rows;
+                        bigrams[i][0] = table[(row1 + 1) % rows][col1];
+                        bigrams[i][1] = table[(row2 + 1) % rows][col2];
                     }
-                    var char = table[row][col];
+                } else {
+                    if (row1 != row2 && col1 != col2) {
+                        bigrams[i][0] = table[row1][col2];
+                        bigrams[i][1] = table[row2][col1];
+                    } else if (row1 == row2) {
+                        bigrams[i][0] = table[row1][(col1 - 1 + cols) % cols];
+                        bigrams[i][1] = table[row2][(col2 - 1 + cols) % cols];
+                    } else {
+                        bigrams[i][0] = table[(row1 - 1 + rows) % rows][col1];
+                        bigrams[i][1] = table[(row2 - 1 + rows) % rows][col2];
+                    }
+                }
+            }
+
+
+            var bigramIdx = 0, innerIdx = 0;
+            for (var i = 0; i < input.length; i++) {
+                if (alphabet.indexOf(input[i].toLowerCase()) !== -1) {
+                    var char = bigrams[bigramIdx][innerIdx];
+                    innerIdx++;
+                    if (innerIdx == 2) {
+                        bigramIdx++;
+                        innerIdx = 0;
+                    }
                     if (input[i] == input[i].toLowerCase()) {
                         output += char;
                     } else {
