@@ -104,17 +104,20 @@
             console.table(table);
 
             idx = -1;
-            var inputWithOnlyAlpha = input.replace(/^[а-я]/i, '');
-            for (var i = 0; i < inputWithOnlyAlpha.length; i++) {
-                if (i % 2 == 0) {
-                    bigrams.push([]);
-                    idx++;
-                }
-                bigrams[idx].push(inputWithOnlyAlpha[i].toLowerCase());
-                if (bigrams[idx].length == 2) {
-                    if (bigrams[idx][0] == bigrams[idx][1]) {
-                        alert('Биграмма с одинаковыми буквами: '.concat(bigrams[idx].toString()));
-                        return false;
+            var cnt = 0;
+            for (var i = 0; i < input.length; i++) {
+                if (alphabet.indexOf(input[i].toLowerCase()) !== -1) {
+                    if (cnt % 2 == 0) {
+                        bigrams.push([]);
+                        idx++;
+                    }
+                    cnt++;
+                    bigrams[idx].push(input[i].toLowerCase());
+                    if (bigrams[idx].length == 2) {
+                        if (bigrams[idx][0] == bigrams[idx][1]) {
+                            alert('Биграмма с одинаковыми буквами: '.concat(bigrams[idx].toString()));
+                            return false;
+                        }
                     }
                 }
             }
